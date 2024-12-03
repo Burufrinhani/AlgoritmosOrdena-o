@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Função para trocar dois elementos
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Bubble Sort
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(&arr[j], &arr[j + 1]);
+            }
+        }
+    }
+}
+
+// Insertion Sort
+void insertionSort(int arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// Quick Sort
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high];
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Busca Linear
+int linearSearch(int arr[], int n, int x) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == x) return i;
+    }
+    return -1;
+}
+
+// Busca Binária
+int binarySearch(int arr[], int low, int high, int x) {
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == x)
+            return mid;
+        if (arr[mid] < x)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return -1;
+}
+
+// Função para medir o tempo
+double measureTime(void (*sortFunc)(int[], int), int arr[], int n) {
+    clock_t start = clock();
+    sortFunc(arr, n);
+    clock_t end = clock();
+    return ((double)(end - start)) / CLOCKS_PER_SEC;
+}
+
+// Função para gerar uma lista aleatória
+void generateRandomArray(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 100;
+    }
+}
+
+// Função para copiar um array
+void copyArray(int src[], int dest[], int n) {
+    for (int i = 0; i < n; i++) {
+        dest[i] = src[i];
+    }
+}
+
+int main() {
+    int n, choice, searchElement, searchResult;
+    printf("Digite o tamanho do array: ");
+    scanf("%d", &n);
+
+    int arr[n], copy[n];
+    generateRandomArray(arr, n);
+
+    printf("Array gerado:\n");
+    for (int i = 0; i < n; i++) printf("%d ", arr[i]);
+    printf("\n");
+
+    printf("\nEscolha uma operação:\n");
+    printf("1. Ordenação (Bubble, Insertion, Quick)\n");
+    printf("2. Busca (Linear, Binária)\n");
+    scanf("%d", &choice);
+
+    if (choice == 1) {
+        printf("\nComparando algoritmos de ordenação...\n");
+
+        copyArray(arr, copy, n);
+        printf("Bubble Sort: %.6f segundos\n", measureTime(bubbleSort, copy, n));
+
+        copyArray(arr, copy, n);
+        printf("Insertion Sort: %.6f segundos\n", measureTime(insertionSort, copy, n));
+
+        copyArray(arr, copy, n);
+        printf("Quick Sort: %.6f segundos\n", measureTime((void (*)(int[], int))quickSort, copy, 0, n - 1));
+
+    } else if (choice == 2) {
+        printf("\nDigite o elemento a ser procurado: ");
+        scanf("%d", &searchElement);
+
+        printf("\nComparando algoritmos de busca...\n");
+        searchResult = linearSearch(arr, n, searchElement);
+        printf("Busca Linear: %s\n", searchResult != -1 ? "Encontrado" : "Não encontrado");
+
+        quickSort(arr, 0, n - 1);  // Ordenando para busca binária
+        searchResult = binarySearch(arr, 0, n - 1, searchElement);
+        printf("Busca Binária: %s\n", searchResult != -1 ? "Encontrado" : "Não encontrado");
+    } else {
+        printf("Opção inválida.\n");
+    }
+
+    return 0;
+}
